@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="Description" content="Enter your description here" />
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/all.min.css">
+    <title>Danh sách Sinh viên</title>
+    <style>
+        th,
+        td {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body ng-app="myApp" ng-controller="myCtrl">
+    <div class="container">
+        <a href="add.html" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> Thêm</a>
+        <div class="row">
+            Lọc danh sách:
+            <div class="col-md">
+                <div class="custom-control custom-radio">
+                    <input type="radio" class="custom-control-input" name="filter" id="radAll" checked
+                        ng-click="loadStudents()">
+                    <label class="custom-control-label" for="radAll">Tất cả</label>
+                </div>
+                <div class="custom-control custom-radio">
+                    <input type="radio" class="custom-control-input" name="filter" id="radPassLT"
+                        ng-click="filterPassLT()">
+                    <label class="custom-control-label" for="radPassLT">Đậu Lý thuyết</label>
+                </div>
+                <div class="custom-control custom-radio">
+                    <input type="radio" class="custom-control-input" name="filter" id="radPassTH"
+                        ng-click="filterPassTH()">
+                    <label class="custom-control-label" for="radPassTH">Đậu Thực hành</label>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="custom-control custom-radio">
+                    <input type="radio" class="custom-control-input" name="filter" id="radFailAll"
+                        ng-click="filterFailAll()">
+                    <label class="custom-control-label" for="radFailAll">Rớt cả 2</label>
+                </div>
+                <div class="custom-control custom-radio">
+                    <input type="radio" class="custom-control-input" name="filter" id="radFailLT"
+                        ng-click="filterFailLT()">
+                    <label class="custom-control-label" for="radFailLT">Rớt Lý thuyết</label>
+                </div>
+                <div class="custom-control custom-radio">
+                    <input type="radio" class="custom-control-input" name="filter" id="radFailTH"
+                        ng-click="filterFailTH()">
+                    <label class="custom-control-label" for="radFailTH">Rớt Thực hành</label>
+                </div>
+            </div>
+        </div>
+        <table class="table table-light table-striped mt-2">
+            <thead class="thead-dark">
+                <tr>
+                    <th>STT</th>
+                    <th>MSSV</th>
+                    <th>Họ và tên đệm</th>
+                    <th>Tên</th>
+                    <th>Điểm LT</th>
+                    <th>Điểm TH</th>
+                    <th>Điểm TB</th>
+                    <th>Chức năng</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in students track by $index">
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ item.MSSV }}</td>
+                    <td>{{ item.Ho }}</td>
+                    <td>{{ item.Ten }}</td>
+                    <td>{{ item.DiemLT }}</td>
+                    <td>{{ item.DiemTH }}</td>
+                    <td>{{ (item.DiemLT + item.DiemTH) / 2 }}</td>
+                    <td>
+                        <a href="edit.html?id={{item.Id}}" class="btn btn-warning">Sửa</a>
+                        <form action="http://localhost:3000/delete" method="post"
+                            onsubmit="return confirm('Bạn có chắc muốn xoá SV này?');">
+                            <input type="hidden" name="id" value="{{ item.Id }}">
+                            <button class="btn btn-danger" type="submit">
+                                <i class="fa fa-trash" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script>
+        var app = angular.module("myApp", []);
+        app.controller("myCtrl", ($scope, $http) => {
+            $http.get("http://localhost:3000")
+                .then(response => {
+                    $scope.fullList = response.data;
+                    $scope.students = $scope.fullList;
+                    console.log($scope.students);
+                });
+
+            $scope.loadStudents = () => {
+                $scope.students = $scope.fullList;
+            }
+
+            $scope.filterPassLT = () => {
+                $scope.students = $scope.fullList.filter(s => s.DiemLT >= 5);
+            }
+
+            $scope.filterPassTH = () => {
+                $scope.students = $scope.fullList.filter(s => s.DiemTH >= 5);
+            }
+
+            $scope.filterFailAll = () => {
+                $scope.students = $scope.fullList.filter(s => s.DiemLT < 5 && s.DiemTH < 5);
+            }
+
+            $scope.filterFailLT = () => {
+                $scope.students = $scope.fullList.filter(s => s.DiemLT < 5);
+            }
+
+            $scope.filterFailTH = () => {
+                $scope.students = $scope.fullList.filter(s => s.DiemTH < 5);
+            }
+
+            $scope.loadStudents();
+        });
+    </script>
+</body>
+
+</html>
